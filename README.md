@@ -121,8 +121,8 @@ publication.
 Le pied de page porte une bannière de l'application, prise telle quelle dans
 `SolairDimDroid/publicite/traductions/` et convertie en WebP : 1,2 Mo de PNG
 deviennent 100 ko, ce qui la rend supportable dans le cache hors ligne. Six
-langues existent à la source ; la page étant en français, seule la française
-est livrée. L'image n'est pas cliquable pour l'instant — le lien de campagne
+langues existent à la source ; seule la française est livrée, et la bannière
+se masque dans les autres langues. L'image n'est pas cliquable pour l'instant — le lien de campagne
 ci-dessus l'enveloppera le jour de la publication.
 
 ## Développement
@@ -143,7 +143,8 @@ sombre compris.
 
 `docs/` contient l'application livrée : `solar.js` (position du soleil et
 irradiation), `layout.js` (géométrie des rangées), `draw.js` (schémas SVG),
-`sites.js` (repères géographiques), `curseur.js` (prise des curseurs au
+`sites.js` (repères géographiques), `i18n.js` (six langues : français,
+anglais, allemand, italien, espagnol, portugais), `curseur.js` (prise des curseurs au
 doigt), `installer.js` (invite d'installation), `app.js` (assemblage). Les tests couvrent la physique, la géométrie
 et les calculs de l'interface, pas son rendu.
 
@@ -169,6 +170,11 @@ proposé pour demander la position. Aucun suivi continu ni envoi de coordonnées
 La recette interactive `tests/navigateur/manuel/localisation.html`, servie
 depuis la racine du dépôt, charge l'interface réelle avec quatre scénarios GPS
 fictifs. Elle isole les réglages et désactive le service worker dans l'iframe.
+
+La langue suit l'appareil (`navigator.languages`), avec un sélecteur dans
+l'entête mémorisé à part (`panopt.langue`) et le français comme repli. Le
+français reste en dur dans `index.html` pour les moteurs de recherche ; le
+JavaScript y substitue la langue choisie au démarrage, guide compris.
 
 `outils-icones.py` régénère les deux icônes ; il n'est pas nécessaire au
 fonctionnement.

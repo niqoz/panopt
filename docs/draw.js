@@ -5,11 +5,14 @@
 const NS = "http://www.w3.org/2000/svg";
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
 
+import { nombre, gabarit, TEXTES } from "./i18n.js";
+
 /** Formatage métier : au centimètre pour les longueurs, au degré pour les
-    angles. Afficher le millimètre serait une précision mensongère. */
-export const m = (v) => `${v.toFixed(2).replace(".", ",")} m`;
+    angles. Afficher le millimètre serait une précision mensongère. Le
+    séparateur décimal suit la langue, point en anglais, virgule ailleurs. */
+export const m = (v, langue = "fr") => `${nombre(v, 2, langue)} m`;
 export const deg = (v) => `${Math.round(v)}°`;
-export const pct = (v) => `${v.toFixed(1).replace(".", ",")} %`;
+export const pct = (v, langue = "fr") => `${nombre(v, 1, langue)} %`;
 export const hm = (h) => {
   const t = Math.round(h * 60), mn = t % 60;
   return `${Math.floor(t / 60)} h${mn ? ` ${String(mn).padStart(2, "0")}` : ""}`;
@@ -95,7 +98,7 @@ function panel(x0, y0, length, tilt, px, cls = "p-panneau") {
 
 /* --- Schéma 1 : inclinaison ------------------------------------------------ */
 
-export function drawTilt({ tilt, optimal, length = 1.7 }) {
+export function drawTilt({ tilt, optimal, length = 1.7, langue = "fr" }) {
   const W = 360, H = 196, sol = 150, x0 = 80;
   const px = 126 / length; // le panneau occupe une largeur fixe a plat
   const a = tilt * Math.PI / 180;
@@ -117,15 +120,15 @@ export function drawTilt({ tilt, optimal, length = 1.7 }) {
     <line x1="${mx + ray * Math.cos(n)}" y1="${my - ray * Math.sin(n)}" x2="${mx}" y2="${my}"
           class="p-soleil" marker-end="url(#fl-soleil)"/>
     ${angleArc(x0, sol, 46, tilt, deg(tilt))}
-    ${dimV(sol, hy, x0 - 16, m(length * Math.sin(a)), { tie: 16 })}
-    ${dimH(x0, hx, sol + 34, m(length * Math.cos(a)), { tie: 30 })}
+    ${dimV(sol, hy, x0 - 16, m(length * Math.sin(a), langue), { tie: 16 })}
+    ${dimH(x0, hx, sol + 34, m(length * Math.cos(a), langue), { tie: 30 })}
     ${optimal !== undefined && Math.abs(optimal - tilt) >= 1
-      ? `<text x="${W - 18}" y="26" class="p-note" text-anchor="end">optimum ${deg(optimal)}</text>` : ""}`);
+      ? `<text x="${W - 18}" y="26" class="p-note" text-anchor="end">${esc(gabarit(TEXTES[langue].optimumNote, { v: deg(optimal) }))}</text>` : ""}`);
 }
 
 /* --- Schéma 2 : rangées ---------------------------------------------------- */
 
-export function drawRows({ length, tilt, layout }) {
+export function drawRows({ length, tilt, layout, langue = "fr" }) {
   const W = 360;
   const a = tilt * Math.PI / 180;
   const total = 2 * layout.pitch + length * Math.cos(a);
@@ -151,9 +154,9 @@ export function drawRows({ length, tilt, layout }) {
           class="p-soleil" marker-end="url(#fl-soleil)"/>
     ${[0, 1, 2].map((i) => panel(x(i), sol, length, tilt, px)).join("")}
     <text x="${hx - dx * ext + 4}" y="${hy - dy * ext - 6}" class="p-soleil-txt">${deg(layout.sun.elevation)}</text>
-    ${dimV(sol, hy, x(1) - 7, m(layout.rise), { tie: 7 })}
-    ${dimH(hx, tx, sol + 24, m(layout.spacing), { tie: 20 })}
-    ${dimH(x(1), x(2), sol + 50, m(layout.pitch), { tie: 46 })}
+    ${dimV(sol, hy, x(1) - 7, m(layout.rise, langue), { tie: 7 })}
+    ${dimH(hx, tx, sol + 24, m(layout.spacing, langue), { tie: 20 })}
+    ${dimH(x(1), x(2), sol + 50, m(layout.pitch, langue), { tie: 46 })}
     ${scaleBar(40, H - 8, px, 130)}`);
 }
 
@@ -161,7 +164,7 @@ export function drawRows({ length, tilt, layout }) {
 
 /** La plage utile compte plus que l'optimum : sur un toit existant on ne
     choisit pas l'inclinaison, on vérifie qu'elle reste acceptable. */
-export function drawLossCurve({ sweep, tilt, tolerance = 5 }) {
+export function drawLossCurve({ sweep, tilt, tolerance = 5, langue = "fr" }) {
   const W = 360, H = 168, l = 34, r = 12, t = 14, b = 30;
   const best = sweep.best.value;
   const loss = sweep.yield.map((v) => (1 - v / best) * 100);
@@ -181,7 +184,7 @@ export function drawLossCurve({ sweep, tilt, tolerance = 5 }) {
     <path d="${path}" class="p-courbe"/>
     <line x1="${X(tilt)}" y1="${t}" x2="${X(tilt)}" y2="${H - b}" class="p-curseur"/>
     <circle cx="${X(tilt)}" cy="${Y(loss[Math.round(tilt)])}" r="5" class="p-point"/>
-    <text x="${X(a) + (X(z) - X(a)) / 2}" y="${H - b - 8}" class="p-plage-txt" text-anchor="middle">${a}° à ${z}°</text>
+    <text x="${X(a) + (X(z) - X(a)) / 2}" y="${H - b - 8}" class="p-plage-txt" text-anchor="middle">${a}° ${TEXTES[langue].plageConn} ${z}°</text>
     ${[0, 30, 60, 90].map((d) => `<text x="${X(d)}" y="${H - b + 16}" class="p-axe" text-anchor="middle">${d}°</text>`).join("")}
-    <text x="${W - r}" y="${H - 4}" class="p-axe" text-anchor="end">inclinaison</text>`);
+    <text x="${W - r}" y="${H - 4}" class="p-axe" text-anchor="end">${esc(TEXTES[langue].axeInclinaison)}</text>`);
 }

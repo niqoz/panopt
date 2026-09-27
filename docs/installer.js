@@ -6,6 +6,8 @@
    iOS ne savent pas installer du tout, faute d'accès au moteur. Il faut donc
    décrire la manœuvre plutôt que la proposer. */
 
+import { TEXTES, gabarit } from "./i18n.js";
+
 /** iPhone et iPad, quel que soit le navigateur : tous passent par WebKit. */
 export function estIOS(ua, tactile = 0) {
   if (/iPhone|iPad|iPod/.test(ua)) return true;
@@ -20,11 +22,11 @@ export function estSafari(ua) {
 }
 
 /** Message d'installation propre à iOS. */
-export function messageIOS(ua) {
-  const geste = "touche Partager puis « Sur l’écran d’accueil »";
+export function messageIOS(ua, langue = "fr") {
+  const geste = TEXTES[langue].inst.geste;
   return estSafari(ua)
-    ? `Pour l’installer, ${geste}.`
-    : `Safari seul sait l’installer : ouvre cette page dans Safari, ${geste}.`;
+    ? gabarit(TEXTES[langue].inst.safari, { geste })
+    : gabarit(TEXTES[langue].inst.autres, { geste });
 }
 
 /** Vrai si la page tourne déjà comme une application installée. */
@@ -35,8 +37,9 @@ export function dejaInstallee() {
 }
 
 /** Met en place l'invite. Le bloc reste caché tant qu'aucune installation
-    n'est possible, pour ne pas promettre ce que le navigateur ne fera pas. */
-export function initInstallation({ bloc, texte, bouton }) {
+    n'est possible, pour ne pas promettre ce que le navigateur ne fera pas.
+    `lireLangue` est une fonction pour suivre un changement de langue. */
+export function initInstallation({ bloc, texte, bouton, lireLangue = () => "fr" }) {
   if (dejaInstallee()) return;
 
   const montrer = (message, avecBouton) => {
@@ -46,7 +49,7 @@ export function initInstallation({ bloc, texte, bouton }) {
   };
 
   if (estIOS(navigator.userAgent, navigator.maxTouchPoints)) {
-    montrer(messageIOS(navigator.userAgent), false);
+    montrer(messageIOS(navigator.userAgent, lireLangue()), false);
     return;
   }
 
@@ -54,7 +57,7 @@ export function initInstallation({ bloc, texte, bouton }) {
   addEventListener("beforeinstallprompt", (e) => {
     e.preventDefault(); // sinon le navigateur affiche sa propre bannière
     invite = e;
-    montrer("Garde SolarDim Panel Optimizer sous la main, même sans réseau.", true);
+    montrer(TEXTES[lireLangue()].inst.garder, true);
   });
 
   bouton.addEventListener("click", async () => {
@@ -66,7 +69,7 @@ export function initInstallation({ bloc, texte, bouton }) {
     if (outcome === "accepted") bloc.hidden = true;
     else {
       // Refus : on n'insiste pas, le navigateur ne réémettra pas l'invite.
-      montrer("Installation annulée. Le menu du navigateur permet de la relancer.", false);
+      montrer(TEXTES[lireLangue()].inst.annulee, false);
     }
   });
 

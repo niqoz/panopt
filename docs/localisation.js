@@ -1,6 +1,8 @@
 /* La position GPS sert à proposer un changement, jamais à déplacer le
    chantier choisi sans un appui de l'utilisateur. Elle reste en mémoire. */
 
+import { TEXTES } from "./i18n.js";
+
 /** Tolérance de 10 km : la latitude des calculs est arrondie à 0,1°.
     Une mesure GPS moins précise ne doit pas déclencher une fausse alerte. */
 export function positionDifferente(site, coords) {
@@ -15,11 +17,12 @@ export function positionDifferente(site, coords) {
   return km > Math.max(10, precision);
 }
 
-export function creerLocalisation({ navigateur, lireSite, appliquer, afficher }) {
+export function creerLocalisation({ navigateur, lireSite, appliquer, afficher, lireLangue = () => "fr" }) {
   let position = null;
   let enCours = false;
   let message = "";
   const disponible = Boolean(navigateur.geolocation);
+  const textes = () => TEXTES[lireLangue()].loc;
 
   function actualiser() {
     afficher({
@@ -31,17 +34,17 @@ export function creerLocalisation({ navigateur, lireSite, appliquer, afficher })
   function relever(appliquerPosition = true) {
     if (enCours) return;
     if (!disponible) {
-      message = "Ce navigateur ne donne pas la position.";
+      message = textes().navig;
       actualiser();
       return;
     }
     enCours = true;
-    message = appliquerPosition ? "Relevé en cours…" : "";
+    message = appliquerPosition ? textes().cours : "";
     actualiser();
     const echouer = () => {
       enCours = false;
       position = null;
-      message = appliquerPosition ? "Position refusée ou indisponible. Choisis une ville ou réessaie." : "";
+      message = appliquerPosition ? textes().refus : "";
       actualiser();
     };
     try {
@@ -50,7 +53,7 @@ export function creerLocalisation({ navigateur, lireSite, appliquer, afficher })
         if (![coords.latitude, coords.longitude].every(Number.isFinite)
           || coords.latitude < 35 || coords.latitude > 60 || Math.abs(coords.longitude) > 180) {
           position = null;
-          message = appliquerPosition ? "Position hors de la zone de latitude couverte (35 à 60° N). Choisis une ville." : "";
+          message = appliquerPosition ? textes().hors : "";
         } else {
           position = coords;
           if (appliquerPosition) message = appliquer(coords);

@@ -160,6 +160,11 @@ h1, .chiffre {
   font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
   font-size: 11px; letter-spacing: 0.06em; color: #8a7a65;
 }
+.langue {
+  min-height: 44px; padding: 4px 8px; max-width: 100%;
+  border: 1px solid #cfc0a6; border-radius: var(--rayon);
+  background: none; color: inherit; font: inherit; font-size: 14px;
+}
 
 @media (max-width: 430px) {
   .entete { gap: 8px; }

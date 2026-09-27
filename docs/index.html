@@ -34,42 +34,50 @@
       <span id="site-libelle">Lyon</span>
       <span id="site-detail">Ensoleillé</span>
     </button>
-    <button type="button" id="ma-loc" class="ma-loc" title="Utiliser ma position GPS" hidden>Me localiser</button>
+    <button type="button" id="ma-loc" class="ma-loc" title="Utiliser ma position GPS" data-i18n="meLocaliser" data-i18n-title="localiserTitre" hidden>Me localiser</button>
+    <select id="langue" class="langue" aria-label="Langue" data-i18n-aria="langue">
+      <option value="fr">Français</option>
+      <option value="en">English</option>
+      <option value="de">Deutsch</option>
+      <option value="it">Italiano</option>
+      <option value="es">Español</option>
+      <option value="pt">Português</option>
+    </select>
   </div>
   <p id="ma-loc-etat" class="ma-loc-etat" role="status"></p>
 </header>
 
 <section id="site" class="site" hidden>
-  <h2 class="titre-section">Où poses-tu ?</h2>
+  <h2 class="titre-section" data-i18n="siteTitre">Où poses-tu ?</h2>
   <div class="champ">
-    <label for="ville">Repère le plus proche</label>
+    <label for="ville" data-i18n="repere">Repère le plus proche</label>
     <div class="rang">
       <select id="ville"></select>
-      <button type="button" id="geoloc" class="bouton-geo">Ma position</button>
+      <button type="button" id="geoloc" class="bouton-geo" data-i18n="maPosition">Ma position</button>
     </div>
     <p id="geoloc-etat" class="aide" role="status"></p>
   </div>
   <div class="champ">
-    <label for="latitude">Latitude <output id="latitude-val" for="latitude"></output></label>
+    <label for="latitude"><span data-i18n="latitude">Latitude</span> <output id="latitude-val" for="latitude"></output></label>
     <input type="range" id="latitude" min="35" max="60" step="0.1">
   </div>
   <div class="champ">
-    <label for="climat">Type de ciel</label>
+    <label for="climat" data-i18n="ciel">Type de ciel</label>
     <select id="climat"></select>
     <p id="climat-aide" class="aide"></p>
   </div>
 </section>
 
-<nav class="onglets" role="tablist" aria-label="Calculs">
-  <button role="tab" id="tab-inclinaison" aria-controls="vue-inclinaison" aria-selected="true">Inclinaison</button>
-  <button role="tab" id="tab-rangees" aria-controls="vue-rangees" aria-selected="false" tabindex="-1">Rangées</button>
+<nav class="onglets" role="tablist" aria-label="Calculs" data-i18n-aria="calculs">
+  <button role="tab" id="tab-inclinaison" aria-controls="vue-inclinaison" aria-selected="true" data-i18n="ongletInclinaison">Inclinaison</button>
+  <button role="tab" id="tab-rangees" aria-controls="vue-rangees" aria-selected="false" tabindex="-1" data-i18n="ongletRangees">Rangées</button>
 </nav>
 
 <main>
 
   <section id="vue-inclinaison" role="tabpanel" aria-labelledby="tab-inclinaison" tabindex="0">
     <div class="apercu">
-      <div class="choix choix-tete" id="saison" role="radiogroup" aria-label="Période visée"></div>
+      <div class="choix choix-tete" id="saison" role="radiogroup" aria-label="Période visée" data-i18n-aria="saisonAria"></div>
       <figure class="plan" id="plan-inclinaison"></figure>
       <p class="verdict" id="verdict-inclinaison"></p>
     </div>
@@ -81,12 +89,12 @@
 
     <div class="reglages">
       <div class="champ">
-        <label for="azimut-p">1 · Orientation du toit <output id="azimut-p-val" for="azimut-p"></output></label>
+        <label for="azimut-p"><span data-i18n="orientationToit">1 · Orientation du toit</span> <output id="azimut-p-val" for="azimut-p"></output></label>
         <input type="range" id="azimut-p" min="-90" max="90" step="5" value="0">
-        <div class="reperes"><span>Est</span><span>Sud-Est</span><span>Sud</span><span>Sud-Ouest</span><span>Ouest</span></div>
+        <div class="reperes"><span data-repere="0">Est</span><span data-repere="1">Sud-Est</span><span data-repere="2">Sud</span><span data-repere="3">Sud-Ouest</span><span data-repere="4">Ouest</span></div>
       </div>
       <div class="champ">
-        <label for="inclinaison-p">2 · Inclinaison du plan <output id="inclinaison-p-val" for="inclinaison-p"></output></label>
+        <label for="inclinaison-p"><span data-i18n="inclinaisonPlan">2 · Inclinaison du plan</span> <output id="inclinaison-p-val" for="inclinaison-p"></output></label>
         <input type="range" id="inclinaison-p" min="0" max="90" step="1" value="30">
       </div>
     </div>
@@ -95,22 +103,22 @@
   <section id="vue-rangees" role="tabpanel" aria-labelledby="tab-rangees" tabindex="0" hidden>
     <div class="apercu">
       <div class="champ champ-panneaux">
-        <span class="label">1 · Longueur du panneau dans la pente</span>
-        <p class="aide">Modules courants : 113 cm de large, 196 ou 228 cm de long. Posé en paysage, c'est la largeur qui se trouve dans la pente ; deux modules paysage superposés font 2,26 m.</p>
-        <div class="choix" id="longueur-choix" role="radiogroup" aria-label="Longueur du panneau"></div>
-        <input type="number" id="longueur" min="0.5" max="8" step="0.01" inputmode="decimal" class="saisie" aria-label="Longueur personnalisée du panneau en mètres">
+        <span class="label" data-i18n="longueurPanneau">1 · Longueur du panneau dans la pente</span>
+        <p class="aide" data-i18n="aidePanneau">Modules courants : 113 cm de large, 196 ou 228 cm de long. Posé en paysage, c'est la largeur qui se trouve dans la pente ; deux modules paysage superposés font 2,26 m.</p>
+        <div class="choix" id="longueur-choix" role="radiogroup" aria-label="Longueur du panneau" data-i18n-aria="longueurAria"></div>
+        <input type="number" id="longueur" min="0.5" max="8" step="0.01" inputmode="decimal" class="saisie" aria-label="Longueur personnalisée du panneau en mètres" data-i18n-aria="longueurPersoAria">
       </div>
       <figure class="plan" id="plan-rangees"></figure>
       <div class="reglages-directs">
         <div class="champ">
-          <label for="azimut-r">2 · Orientation du champ <output id="azimut-r-val" for="azimut-r"></output></label>
+          <label for="azimut-r"><span data-i18n="orientationChamp">2 · Orientation du champ</span> <output id="azimut-r-val" for="azimut-r"></output></label>
           <input type="range" id="azimut-r" min="-90" max="90" step="5" value="0">
-          <div class="reperes"><span>Est</span><span>Sud-Est</span><span>Sud</span><span>Sud-Ouest</span><span>Ouest</span></div>
+          <div class="reperes"><span data-repere="0">Est</span><span data-repere="1">Sud-Est</span><span data-repere="2">Sud</span><span data-repere="3">Sud-Ouest</span><span data-repere="4">Ouest</span></div>
         </div>
         <div class="champ">
-          <label for="inclinaison-r">3 · Inclinaison des tables <output id="inclinaison-r-val" for="inclinaison-r"></output></label>
+          <label for="inclinaison-r"><span data-i18n="inclinaisonTables">3 · Inclinaison des tables</span> <output id="inclinaison-r-val" for="inclinaison-r"></output></label>
           <input type="range" id="inclinaison-r" min="0" max="90" step="1" value="30">
-          <p class="aide">Orientation et inclinaison sont communes aux deux onglets. Les modifier ici mettra à jour la perte annuelle dans Inclinaison.</p>
+          <p class="aide" data-i18n="aideCommun">Orientation et inclinaison sont communes aux deux onglets. Les modifier ici mettra à jour la perte annuelle dans Inclinaison.</p>
         </div>
       </div>
       <p class="verdict" id="verdict-rangees"></p>
@@ -122,9 +130,9 @@
 
     <div class="reglages">
       <div class="champ">
-        <label for="critere">4 · Sans ombre jusqu'à</label>
+        <label for="critere" data-i18n="critere">4 · Sans ombre jusqu'à</label>
         <select id="critere"></select>
-        <p class="aide">C'est le choix le plus lourd du calcul : passer de midi seul à 9 h - 15 h peut doubler l'écartement.</p>
+        <p class="aide" data-i18n="aideCritere">C'est le choix le plus lourd du calcul : passer de midi seul à 9 h - 15 h peut doubler l'écartement.</p>
       </div>
     </div>
   </section>
@@ -132,11 +140,11 @@
 </main>
 
 <section class="guide" aria-labelledby="guide-titre">
-  <h2 id="guide-titre" class="titre-section">Les questions auxquelles ce calcul répond</h2>
+  <h2 id="guide-titre" class="titre-section" data-i18n="guideTitre">Les questions auxquelles ce calcul répond</h2>
 
   <article>
-    <h3>Quelle inclinaison donner à des panneaux photovoltaïques ?</h3>
-    <p>Sur un toit existant, la pente est celle du toit : la question n'est pas
+    <h3 data-i18n="g1t">Quelle inclinaison donner à des panneaux photovoltaïques ?</h3>
+    <p data-i18n="g1p">Sur un toit existant, la pente est celle du toit : la question n'est pas
     de la choisir mais de savoir ce qu'elle coûte. En France métropolitaine,
     l'inclinaison optimale d'un plan orienté plein sud tient entre 35 et 37°,
     de Perpignan à Lille — elle dépend beaucoup moins de la latitude qu'on ne
@@ -147,8 +155,8 @@
   </article>
 
   <article>
-    <h3>Quelle distance entre deux rangées de panneaux solaires ?</h3>
-    <p>Sur une table inclinée de β dont la longueur dans le sens de la pente
+    <h3 data-i18n="g2t">Quelle distance entre deux rangées de panneaux solaires ?</h3>
+    <p data-i18n-html="g2p">Sur une table inclinée de β dont la longueur dans le sens de la pente
     vaut L, le bord haut domine le bord bas de <em>h = L·sin β</em>. Pour que
     l'ombre portée n'atteigne pas la rangée suivante alors que le soleil est à
     la hauteur α et à un écart d'azimut Δ de l'axe du champ, il faut laisser
@@ -158,8 +166,8 @@
   </article>
 
   <article>
-    <h3>Pourquoi calculer l'ombrage au 21 décembre, et à quelle heure ?</h3>
-    <p>C'est le choix le plus lourd de tout le dimensionnement, bien avant la
+    <h3 data-i18n="g3t">Pourquoi calculer l'ombrage au 21 décembre, et à quelle heure ?</h3>
+    <p data-i18n="g3p">C'est le choix le plus lourd de tout le dimensionnement, bien avant la
     latitude. Pour un module de 1,13 m dans la pente, incliné à 30°, en champ
     plein sud vers Lyon : être sans ombre au seul midi solaire du solstice
     demande 1,49 m d'espace libre, soit un pas de 2,47 m ; l'être de 9 h à
@@ -169,8 +177,8 @@
   </article>
 
   <article>
-    <h3>Combien perd une toiture orientée à l'est ou à l'ouest ?</h3>
-    <p>Moins qu'on ne le redoute d'un côté, plus qu'on ne l'espère de l'autre.
+    <h3 data-i18n="g4t">Combien perd une toiture orientée à l'est ou à l'ouest ?</h3>
+    <p data-i18n="g4p">Moins qu'on ne le redoute d'un côté, plus qu'on ne l'espère de l'autre.
     À 30° de pente, un plan sud-ouest ou sud-est perd environ 6 % par rapport
     au plein sud ; un plan plein ouest ou plein est en perd environ 21 %. Ces
     écarts se creusent avec la pente : une toiture raide orientée à l'ouest
@@ -178,16 +186,16 @@
   </article>
 
   <article>
-    <h3>Qu'est-ce que le taux de couverture au sol (GCR) ?</h3>
-    <p>Le rapport entre la longueur du panneau dans la pente et le pas entre
+    <h3 data-i18n="g5t">Qu'est-ce que le taux de couverture au sol (GCR) ?</h3>
+    <p data-i18n="g5p">Le rapport entre la longueur du panneau dans la pente et le pas entre
     rangées. Il dit quelle part du terrain porte effectivement des modules :
     à 40 %, il faut 2,5 m² de parcelle par m² de capteur. C'est le chiffre qui
     traduit un critère d'ombrage en surface de terrain, donc en coût.</p>
   </article>
 
   <article>
-    <h3>Ce que l'outil est, et ce qu'il n'est pas</h3>
-    <p>La géométrie — course du soleil, ombres portées, écartement des rangées
+    <h3 data-i18n="g6t">Ce que l'outil est, et ce qu'il n'est pas</h3>
+    <p data-i18n-html="g6p1">La géométrie — course du soleil, ombres portées, écartement des rangées
     — est exacte. Le modèle d'irradiation, lui, est approché : calé sur les
     irradiations PVGIS, il donne l'inclinaison optimale à 3° près et les pertes
     relatives à quelques pour cent, ce qui suffit à trancher une pente ou un
@@ -195,7 +203,7 @@
     kilowattheures, un autoconsommation et une rentabilité, il faut un outil de
     dimensionnement complet — c'est ce que fait <strong>SolarDim</strong>,
     l'application dont celle-ci est le satellite.</p>
-    <p>Quatre-vingt-dix repères couvrent la France et l'Europe de l'Ouest —
+    <p data-i18n="g6p2">Quatre-vingt-dix repères couvrent la France et l'Europe de l'Ouest —
     Allemagne, Autriche, Belgique, Espagne, Irlande, Italie, Luxembourg,
     Pays-Bas, Portugal, Royaume-Uni, Suisse — ou se règlent à la latitude et au
     type de ciel. Tout le calcul se fait dans le navigateur, sans aucun appel réseau :
@@ -208,16 +216,16 @@
 <footer class="pied">
   <div class="installer" id="installer" hidden>
     <p id="installer-texte"></p>
-    <button type="button" id="installer-bouton" hidden>Installer l’application</button>
+    <button type="button" id="installer-bouton" data-i18n="installerBouton" hidden>Installer l’application</button>
   </div>
   <!-- Bannière SolarDim. Le jour où la fiche est publiée, l'image s'enveloppe
        dans une ancre vers le Play Store, dont le README porte déjà l'adresse
        de campagne : rien d'autre à changer. -->
-  <div class="promo">
+  <div class="promo" id="promo">
     <img src="solardim-banniere.webp" width="1024" height="1024"
-      alt="SolarDim : dimensionnement et amortissement d'une installation photovoltaïque, calculs basés sur PVGIS.">
+      alt="SolarDim : dimensionnement et amortissement d'une installation photovoltaïque, calculs basés sur PVGIS." data-i18n-alt="promoAlt">
   </div>
-  <p>Modèle de ciel calé sur les irradiations PVGIS : inclinaison optimale à 3° près, gain d'inclinaison à 2 % près. Pour un chiffrage de production, repasser par PVGIS.</p>
+  <p data-i18n="piedNote">Modèle de ciel calé sur les irradiations PVGIS : inclinaison optimale à 3° près, gain d'inclinaison à 2 % près. Pour un chiffrage de production, repasser par PVGIS.</p>
 </footer>
 
 <script type="application/ld+json">
