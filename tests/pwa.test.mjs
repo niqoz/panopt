@@ -76,3 +76,9 @@ test("le nouvel entete ne reutilise pas la feuille de style de l'ancien logo", (
   assert.match(logo, /width="604"/);
   assert.match(logo, /height="245"/);
 });
+
+test("le bandeau conserve le climat sans afficher de coordonnées", () => {
+  const detail = lire("index.html").match(/id="site-detail">([^<]*)</)[1];
+  assert.equal(detail, "Ensoleillé");
+  assert.match(lire("app.js"), /\$\("site-detail"\)\.textContent = CLIMATES\[etat\.climat\]\.label;/);
+});

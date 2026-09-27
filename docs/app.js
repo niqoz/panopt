@@ -124,8 +124,7 @@ const rendus = { inclinaison: rendreInclinaison, rangees: rendreRangees };
 function rendre() {
   for (const recaler of curseurs) recaler();
   $("site-libelle").textContent = etat.ville;
-  $("site-detail").textContent =
-    `${etat.lat.toFixed(1).replace(".", ",")}° N · ${CLIMATES[etat.climat].label}`;
+  $("site-detail").textContent = CLIMATES[etat.climat].label;
   localisation?.actualiser();
   rendus[vue]();
   sauver();
