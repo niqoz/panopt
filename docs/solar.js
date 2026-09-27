@@ -122,32 +122,22 @@ export function extraterrestrialHorizontal(lat, n, solarHour) {
    aucun sens à Glasgow, qui relève pourtant de la même forme de ciel. */
 export const CLIMATES = {
   mediterraneen: {
-    label: "Très ensoleillé",
-    hint: "Marseille, Perpignan, Séville, Rome",
     // Cale sur Marseille, 1650 kWh/m²/an sur plan horizontal.
     kt: [0.529, 0.566, 0.592, 0.581, 0.581, 0.626, 0.662, 0.645, 0.636, 0.577, 0.523, 0.505]
   },
   sudouest: {
-    label: "Ensoleillé",
-    hint: "Toulouse, Lyon, Milan, Genève",
     // Cale sur Toulouse, 1395 kWh/m²/an.
     kt: [0.429, 0.467, 0.501, 0.497, 0.496, 0.534, 0.556, 0.555, 0.555, 0.491, 0.429, 0.413]
   },
   atlantique: {
-    label: "Tempéré clair",
-    hint: "Nantes, La Rochelle, Munich, Vienne",
     // Cale sur Nantes, 1259 kWh/m²/an.
     kt: [0.366, 0.418, 0.466, 0.507, 0.493, 0.518, 0.519, 0.525, 0.529, 0.445, 0.378, 0.348]
   },
   continental: {
-    label: "Tempéré",
-    hint: "Strasbourg, Dijon, Bruxelles, Londres",
     // Cale sur Strasbourg, 1187 kWh/m²/an.
     kt: [0.316, 0.390, 0.450, 0.499, 0.480, 0.496, 0.515, 0.518, 0.506, 0.413, 0.321, 0.300]
   },
   oceanique: {
-    label: "Souvent couvert",
-    hint: "Lille, Rouen, Hambourg, Glasgow",
     // Cale sur Lille, 1066 kWh/m²/an.
     kt: [0.293, 0.361, 0.414, 0.469, 0.460, 0.462, 0.465, 0.471, 0.458, 0.379, 0.300, 0.269]
   }
@@ -338,11 +328,12 @@ export function irradiation(lat, tilt, azimuth, climate, albedo = 0.2, months = 
   return total;
 }
 
-/** Saisons prédéfinies, exprimées en listes de mois. */
+/** Saisons prédéfinies, exprimées en listes de mois. Leurs libellés, comme
+    ceux des climats, vivent dans i18n.js. */
 export const SEASONS = {
-  annee: { label: "Année", hint: "12 mois", months: null },
-  hiver: { label: "Hiver", hint: "oct. à mars", months: [9, 10, 11, 0, 1, 2] },
-  ete: { label: "Été", hint: "avril à sept.", months: [3, 4, 5, 6, 7, 8] }
+  annee: { months: null },
+  hiver: { months: [9, 10, 11, 0, 1, 2] },
+  ete: { months: [3, 4, 5, 6, 7, 8] }
 };
 
 /** Balayage d'inclinaison de 0 a 90 degrés.

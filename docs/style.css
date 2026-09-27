@@ -140,6 +140,7 @@ h1, .chiffre {
   border: 0; border-radius: var(--rayon); background: none;
   color: #a7482b; font: inherit; font-size: 14px; font-weight: 600;
   cursor: pointer; text-decoration: underline; text-underline-offset: 3px;
+  white-space: nowrap;
 }
 .ma-loc:hover { background: #f2ece0; }
 .ma-loc:disabled { color: #8a7a65; cursor: wait; }
@@ -160,8 +161,11 @@ h1, .chiffre {
   font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
   font-size: 11px; letter-spacing: 0.06em; color: #8a7a65;
 }
+/* Le sélecteur de langue partage la rangée de « Me localiser » : empilé
+   dessous, il ajoutait une troisième ligne à l'entête sur téléphone. */
+.site-outils { display: flex; align-items: center; justify-content: flex-end; gap: 4px; }
 .langue {
-  min-height: 44px; padding: 4px 8px; max-width: 100%;
+  min-height: 44px; padding: 4px 6px;
   border: 1px solid #cfc0a6; border-radius: var(--rayon);
   background: none; color: inherit; font: inherit; font-size: 14px;
 }
@@ -170,6 +174,8 @@ h1, .chiffre {
   .entete { gap: 8px; }
   .marque-logo { width: clamp(120px, 38vw, 160px); }
   .site-resume { padding-inline: 9px; }
+  .ma-loc { padding-inline: 6px; }
+  .langue { padding-inline: 2px; }
 }
 
 /* --- Panneau de site ----------------------------------------------------- */

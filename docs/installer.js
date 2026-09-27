@@ -38,26 +38,30 @@ export function dejaInstallee() {
 
 /** Met en place l'invite. Le bloc reste caché tant qu'aucune installation
     n'est possible, pour ne pas promettre ce que le navigateur ne fera pas.
-    `lireLangue` est une fonction pour suivre un changement de langue. */
+    Le message est gardé sous forme de fonction, que `actualiser()` rejoue
+    après un changement de langue. */
 export function initInstallation({ bloc, texte, bouton, lireLangue = () => "fr" }) {
-  if (dejaInstallee()) return;
+  let message = null;
+  const actualiser = () => { if (message) texte.textContent = message(); };
+  if (dejaInstallee()) return { actualiser };
 
-  const montrer = (message, avecBouton) => {
-    texte.textContent = message;
+  const montrer = (fabrique, avecBouton) => {
+    message = fabrique;
+    actualiser();
     bouton.hidden = !avecBouton;
     bloc.hidden = false;
   };
 
   if (estIOS(navigator.userAgent, navigator.maxTouchPoints)) {
-    montrer(messageIOS(navigator.userAgent, lireLangue()), false);
-    return;
+    montrer(() => messageIOS(navigator.userAgent, lireLangue()), false);
+    return { actualiser };
   }
 
   let invite = null;
   addEventListener("beforeinstallprompt", (e) => {
     e.preventDefault(); // sinon le navigateur affiche sa propre bannière
     invite = e;
-    montrer(TEXTES[lireLangue()].inst.garder, true);
+    montrer(() => TEXTES[lireLangue()].inst.garder, true);
   });
 
   bouton.addEventListener("click", async () => {
@@ -69,9 +73,10 @@ export function initInstallation({ bloc, texte, bouton, lireLangue = () => "fr" 
     if (outcome === "accepted") bloc.hidden = true;
     else {
       // Refus : on n'insiste pas, le navigateur ne réémettra pas l'invite.
-      montrer(TEXTES[lireLangue()].inst.annulee, false);
+      montrer(() => TEXTES[lireLangue()].inst.annulee, false);
     }
   });
 
   addEventListener("appinstalled", () => { bloc.hidden = true; });
+  return { actualiser };
 }

@@ -13,7 +13,7 @@ const ASSETS = [
   "./",
   "./index.html",
   "./style.css",
-  "./style.css?v=15",
+  "./style.css?v=16",
   "./brandmark-panel.svg",
   "./panel-optimizer-logo.svg",
   "./app.js",

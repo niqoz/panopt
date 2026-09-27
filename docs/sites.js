@@ -10,21 +10,9 @@
    cinq formes de ciel françaises suffisent, ce qui a été mesuré et non
    supposé. */
 
-/** Noms des pays couverts, dans l'ordre où le menu les présente. */
-export const COUNTRIES = [
-  ["FR", "France"],
-  ["DE", "Allemagne"],
-  ["AT", "Autriche"],
-  ["BE", "Belgique"],
-  ["ES", "Espagne"],
-  ["IE", "Irlande"],
-  ["IT", "Italie"],
-  ["LU", "Luxembourg"],
-  ["NL", "Pays-Bas"],
-  ["PT", "Portugal"],
-  ["GB", "Royaume-Uni"],
-  ["CH", "Suisse"]
-];
+/** Codes des pays couverts, dans l'ordre où le menu les présente. Leurs
+    noms vivent dans i18n.js, dans chacune des six langues. */
+export const COUNTRIES = ["FR", "DE", "AT", "BE", "ES", "IE", "IT", "LU", "NL", "PT", "GB", "CH"];
 
 /** Villes de référence : nom, latitude, longitude, zone climatique, pays. */
 export const CITIES = [

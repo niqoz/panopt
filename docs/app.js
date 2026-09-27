@@ -5,12 +5,12 @@
 import { SEASONS, tiltAnalysis, tiltSweep } from "./solar.js";
 import { rowLayout, shadeFreeWindow } from "./layout.js";
 import { CITIES, COUNTRIES, nearestCity } from "./sites.js";
-import { LANGUES, langueInitiale, nombre, gabarit, TEXTES } from "./i18n.js";
+import { LANGUES, langueInitiale, nombre, heure, gabarit, TEXTES } from "./i18n.js";
 import { limiterALaPoignee } from "./curseur.js";
 import { initInstallation } from "./installer.js";
 import { initMiseAJour } from "./maj.js";
 import { creerLocalisation } from "./localisation.js";
-import { drawTilt, drawRows, drawLossCurve, m, deg, pct, hm } from "./draw.js";
+import { drawTilt, drawRows, drawLossCurve, m, deg, pct } from "./draw.js";
 
 /** Longueurs de panneau usuelles, mesurées dans le sens de la pente.
     Les modules courants font 113 cm de large pour 196 ou 228 cm de long :
@@ -30,7 +30,10 @@ const defauts = {
   // La longitude ne sert à aucun calcul d'ici — le soleil y est repéré en
   // heure solaire vraie. Elle est retenue parce que le fichier repris par
   // SolarDim décrit un chantier, et qu'un chantier a deux coordonnées.
-  lat: 45.8, lon: 4.85, climat: "sudouest", ville: "Lyon",
+  // `ville` est le nom d'un repère, ou "" pour une position relevée loin de
+  // tout repère ; `pres` signale un relevé à moins de 25 km du repère sans
+  // être dessus. Le libellé affiché se refait dans la langue : nomSite().
+  lat: 45.8, lon: 4.85, climat: "sudouest", ville: "Lyon", pres: false,
   azimut: 0, tilt: 30, saison: "annee",
   longueur: 1.96, critere: "solstice_6h"
 };
@@ -38,6 +41,10 @@ const defauts = {
 const CLE = "panopt.reglages";
 let etat = { ...defauts };
 try { Object.assign(etat, JSON.parse(localStorage.getItem(CLE) || "{}")); } catch { /* premier lancement */ }
+// Réglages antérieurs aux traductions : le libellé français y était
+// enregistré tout fait.
+if (etat.ville === "Ma position") etat.ville = "";
+else if (String(etat.ville).startsWith("Près de ")) { etat.ville = etat.ville.slice(8); etat.pres = true; }
 
 /* Langue de l'interface : le choix enregistré d'abord, sinon la première
    langue livrée parmi celles de l'appareil, sinon le français. */
@@ -124,7 +131,7 @@ function rendreRangees() {
     [T().hauteur, m(l.rise, langue)],
     [T().emprise, m(l.run, langue)],
     [T().couverture, `${Math.round(l.gcr * 100)} %`],
-    [T().soleil, `${deg(l.sun.elevation)} ${T().soleilConn} ${hm(l.sun.hour)}`],
+    [T().soleil, `${deg(l.sun.elevation)} ${T().soleilConn} ${heure(l.sun.hour, langue)}`],
     [gabarit(T().sansOmbre, { mois: T().mois[11] }), w ? gabarit(T().heures, { h: nombre(w.hours, 1, langue) }) : T().jamais]
   ].map(([t, v]) => `<div><dt>${t}</dt><dd>${v}</dd></div>`).join("");
 }
@@ -137,7 +144,7 @@ const rendus = { inclinaison: rendreInclinaison, rangees: rendreRangees };
 
 function rendre() {
   for (const recaler of curseurs) recaler();
-  $("site-libelle").textContent = etat.ville;
+  $("site-libelle").textContent = nomSite();
   $("site-detail").textContent = T().climats[etat.climat].label;
   localisation?.actualiser();
   rendus[vue]();
@@ -208,7 +215,7 @@ function initSite() {
   $("ville").addEventListener("change", (e) => {
     const c = CITIES.find((x) => x[0] === e.target.value);
     if (!c) return; // entrée « position relevée », rien à recharger
-    etat.ville = c[0]; etat.lat = c[1]; etat.lon = c[2]; etat.climat = c[3];
+    etat.ville = c[0]; etat.pres = false; etat.lat = c[1]; etat.lon = c[2]; etat.climat = c[3];
     localisation.effacerMessage();
     $("latitude").value = etat.lat;
     $("latitude-val").textContent = `${nombre(etat.lat, 1, langue)}°`;
@@ -217,7 +224,6 @@ function initSite() {
     rendre();
   });
 
-  remplirSelect($("climat"), Object.entries(T().climats).map(([k, v]) => [k, v.label]), etat.climat);
   $("climat").addEventListener("change", (e) => { etat.climat = e.target.value; majAideClimat(); rendre(); });
 
   curseur("latitude", "lat", (v) => `${nombre(v, 1, langue)}°`);
@@ -245,18 +251,17 @@ function initSite() {
       etat.lat = Math.round(coords.latitude * 10) / 10;
       etat.lon = Math.round(coords.longitude * 100) / 100;
       etat.climat = proche.zone;
-      etat.ville = proche.km <= 8 ? proche.name
-        : proche.km <= 25 ? gabarit(T().presDe, { ville: proche.name }) : T().villePosition;
+      etat.ville = proche.km <= 25 ? proche.name : "";
+      etat.pres = proche.km > 8 && proche.km <= 25;
       $("latitude").value = etat.lat;
       $("latitude-val").textContent = `${nombre(etat.lat, 1, langue)}°`;
       $("climat").value = etat.climat;
       majVilles();
       majAideClimat();
-      const message = proche.km <= 25
-        ? gabarit(T().positionKm, { km: proche.km, ville: proche.name })
-        : T().positionSeule;
       rendre();
-      return message;
+      return proche.km <= 25
+        ? () => gabarit(T().positionKm, { km: proche.km, ville: proche.name })
+        : () => T().positionSeule;
     }
   });
   $("geoloc").addEventListener("click", () => localisation.relever());
@@ -274,16 +279,22 @@ const majAideClimat = () => { $("climat-aide").textContent = T().climats[etat.cl
     repère figure en tête, plutôt que de laisser le menu afficher une ville
     sans rapport avec l'endroit où l'on se trouve. */
 function majVilles() {
-  const connue = CITIES.some((c) => c[0] === etat.ville);
+  const connue = !etat.pres && CITIES.some((c) => c[0] === etat.ville);
   const option = (v, t) =>
     `<option value="${v}"${v === (connue ? etat.ville : "") ? " selected" : ""}>${t}</option>`;
-  const groupes = COUNTRIES.map(([code]) => {
+  const groupes = COUNTRIES.map((code) => {
     const villes = CITIES.filter((c) => c[4] === code);
     return villes.length
       ? `<optgroup label="${T().pays[code]}">${villes.map((c) => option(c[0], c[0])).join("")}</optgroup>`
       : "";
   });
-  $("ville").innerHTML = (connue ? "" : option("", etat.ville)) + groupes.join("");
+  $("ville").innerHTML = (connue ? "" : option("", nomSite())) + groupes.join("");
+}
+
+/** Nom du chantier dans la langue courante. */
+function nomSite() {
+  if (!etat.ville) return T().villePosition;
+  return etat.pres ? gabarit(T().presDe, { ville: etat.ville }) : etat.ville;
 }
 
 /* Listes et groupes de choix, seuls éléments reconstruits à chaque
@@ -323,8 +334,7 @@ function majLongueur(v) {
 
 /* Textes statiques de la page : le français reste en dur dans index.html
    pour les moteurs de recherche, et ce balayage y substitue la langue
-   choisie au démarrage puis à chaque changement. La bannière n'existe
-   qu'en français : elle se masque ailleurs. */
+   choisie au démarrage puis à chaque changement. */
 function appliquerStatiques() {
   const t = T();
   document.documentElement.lang = langue;
@@ -351,7 +361,20 @@ function appliquerStatiques() {
   for (const el of document.querySelectorAll("[data-repere]")) {
     el.textContent = t.reperes[Number(el.getAttribute("data-repere"))];
   }
-  $("promo").hidden = langue !== "fr";
+  afficherBanniere();
+}
+
+/* La bannière existe dans les six langues. Seule la française est mise en
+   cache à l'installation ; les autres le sont par le service worker au
+   premier affichage en ligne. Hors ligne avant cela, le fichier manque :
+   le bloc se masque plutôt que d'afficher une image cassée. */
+function afficherBanniere() {
+  const bloc = $("promo"), img = bloc.querySelector("img");
+  const fichier = langue === "fr" ? "solardim-banniere.webp" : `solardim-banniere-${langue}.webp`;
+  img.onerror = () => { bloc.hidden = true; };
+  if (img.getAttribute("src") === fichier) return;
+  bloc.hidden = false;
+  img.setAttribute("src", fichier);
 }
 
 function initLangue() {
@@ -364,6 +387,7 @@ function initLangue() {
     sauverLangue();
     appliquerStatiques();
     reconstruireChoix();
+    installation.actualiser();
     rendre();
   });
 }
@@ -375,7 +399,7 @@ initLangue();
 majAideClimat();
 rendre();
 
-initInstallation({
+const installation = initInstallation({
   bloc: $("installer"),
   texte: $("installer-texte"),
   bouton: $("installer-bouton"),

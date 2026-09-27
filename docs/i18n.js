@@ -1,28 +1,24 @@
 /* Internationalisation de SolarDim Panel Optimizer.
 
-   L'application reste sans dependance ni etape de construction : les six
-   langues vivent dans ce seul module, charge comme les autres en ES direct.
-   Le francais est la langue de repli — c'est aussi celle que les moteurs de
-   recherche lisent, le fond de page statique restant en francais.
+   L'application reste sans dépendance ni étape de construction : les six
+   langues vivent dans ce seul module, chargé comme les autres en ES direct.
+   Le français est la langue de repli — c'est aussi celle que les moteurs de
+   recherche lisent, le fond de page statique restant en français.
 
-   Conventions : les cles sont sans accents (comme les identifiants du
+   Conventions : les clés sont sans accents (comme les identifiants du
    reste du code), les valeurs portent la typographie de leur langue.
    Les noms de villes sont des noms propres et ne se traduisent pas ; seuls
-   leurs exonymes dans les aides de ciel le sont. */
+   leurs exonymes dans les aides de ciel le sont.
+
+   Un texte affiché ne se garde jamais tout fait : on garde de quoi le
+   refaire, sans quoi un changement de langue laisse des restes de la
+   précédente. */
 
 export const LANGUES = ["fr", "en", "de", "it", "es", "pt"];
 
-/** Ramene une etiquette de langue (p. ex. « de-CH ») a une langue livree.
-    Toute langue non livree retombe sur le francais. */
-export function normaliserLangue(etiquette) {
-  if (!etiquette) return "fr";
-  const base = String(etiquette).toLowerCase().split(/[-_]/)[0];
-  return LANGUES.includes(base) ? base : "fr";
-}
-
-/** Langue au demarrage : le choix enregistre d'abord, sinon la premiere
-    langue livree parmi celles de l'appareil, sinon le francais.
-    `langues` recoit `navigator.languages` (ou `[navigator.language`). */
+/** Langue au démarrage : le choix enregistré d'abord, sinon la première
+    langue livrée parmi celles de l'appareil (« de-CH » compte pour « de »),
+    sinon le français. `langues` reçoit `navigator.languages`. */
 export function langueInitiale({ enregistree = null, langues = [] } = {}) {
   if (LANGUES.includes(enregistree)) return enregistree;
   for (const etiquette of langues || []) {
@@ -32,17 +28,35 @@ export function langueInitiale({ enregistree = null, langues = [] } = {}) {
   return "fr";
 }
 
-/** Separateur decimal : le point en anglais, la virgule ailleurs. */
+/** Séparateur décimal : le point en anglais, la virgule ailleurs. */
 export function separateur(langue) {
   return langue === "en" ? "." : ",";
 }
 
-/** Nombre formate a la maniere de la langue, sans dependre d'Intl. */
+/** Nombre formaté à la manière de la langue, sans dépendre d'Intl. */
 export function nombre(v, decimales, langue) {
   return v.toFixed(decimales).replace(".", separateur(langue));
 }
 
-/** Remplace les {cles} d'un modele par leurs valeurs. */
+/** Heure d'horloge à la manière de la langue : « 9 h 30 » en français,
+    « 9:30 am » en anglais, « 9:30 Uhr » en allemand, « 9h30 » en portugais. */
+export function heure(h, langue) {
+  const t = Math.round(h * 60), hh = Math.floor(t / 60), mn = t % 60;
+  const m2 = String(mn).padStart(2, "0");
+  switch (langue) {
+    case "en": {
+      const h12 = hh % 12 || 12, suffixe = hh < 12 ? "am" : "pm";
+      return mn ? `${h12}:${m2} ${suffixe}` : `${h12} ${suffixe}`;
+    }
+    case "de": return mn ? `${hh}:${m2} Uhr` : `${hh} Uhr`;
+    case "it": return mn ? `${hh}:${m2}` : `${hh}`;
+    case "es": return mn ? `${hh}:${m2} h` : `${hh} h`;
+    case "pt": return mn ? `${hh}h${m2}` : `${hh}h`;
+    default: return mn ? `${hh} h ${m2}` : `${hh} h`;
+  }
+}
+
+/** Remplace les {clés} d'un modèle par leurs valeurs. */
 export function gabarit(modele, vars) {
   return String(modele).replace(/\{(\w+)\}/g, (_, k) => (vars[k] ?? ""));
 }
@@ -147,7 +161,7 @@ export const TEXTES = {
     g5t: "Qu'est-ce que le taux de couverture au sol (GCR) ?",
     g5p: "Le rapport entre la longueur du panneau dans la pente et le pas entre rangées. Il dit quelle part du terrain porte effectivement des modules : à 40 %, il faut 2,5 m² de parcelle par m² de capteur. C'est le chiffre qui traduit un critère d'ombrage en surface de terrain, donc en coût.",
     g6t: "Ce que l'outil est, et ce qu'il n'est pas",
-    g6p1: "La géométrie — course du soleil, ombres portées, écartement des rangées — est exacte. Le modèle d'irradiation, lui, est approché : calé sur les irradiations PVGIS, il donne l'inclinaison optimale à 3° près et les pertes relatives à quelques pour cent, ce qui suffit à trancher une pente ou un écartement. Il ne remplace pas un calcul de production : pour chiffrer des kilowattheures, un autoconsommation et une rentabilité, il faut un outil de dimensionnement complet — c'est ce que fait <strong>SolarDim</strong>, l'application dont celle-ci est le satellite.",
+    g6p1: "La géométrie — course du soleil, ombres portées, écartement des rangées — est exacte. Le modèle d'irradiation, lui, est approché : calé sur les irradiations PVGIS, il donne l'inclinaison optimale à 3° près et les pertes relatives à quelques pour cent, ce qui suffit à trancher une pente ou un écartement. Il ne remplace pas un calcul de production : pour chiffrer des kilowattheures, une autoconsommation et une rentabilité, il faut un outil de dimensionnement complet — c'est ce que fait <strong>SolarDim</strong>, l'application dont celle-ci est le satellite.",
     g6p2: "Quatre-vingt-dix repères couvrent la France et l'Europe de l'Ouest — Allemagne, Autriche, Belgique, Espagne, Irlande, Italie, Luxembourg, Pays-Bas, Portugal, Royaume-Uni, Suisse — ou se règlent à la latitude et au type de ciel. Tout le calcul se fait dans le navigateur, sans aucun appel réseau : l'outil est utilisable en toiture, en cave ou en pleine campagne. Il s'installe sur le téléphone comme une application, et reste gratuit et sans compte."
   },
   en: {
@@ -216,7 +230,7 @@ export const TEXTES = {
     climats: {
       mediterraneen: { label: "Very sunny", hint: "Marseille, Perpignan, Seville, Rome" },
       sudouest: { label: "Sunny", hint: "Toulouse, Lyon, Milan, Geneva" },
-      atlantique: { label: "Mild bright", hint: "Nantes, La Rochelle, Munich, Vienna" },
+      atlantique: { label: "Bright temperate", hint: "Nantes, La Rochelle, Munich, Vienna" },
       continental: { label: "Mild", hint: "Strasbourg, Dijon, Brussels, London" },
       oceanique: { label: "Often overcast", hint: "Lille, Rouen, Hamburg, Glasgow" }
     },
@@ -227,10 +241,10 @@ export const TEXTES = {
     },
     criteres: {
       solstice_midi: "21 Dec, solar noon",
-      solstice_4h: "21 Dec, 10 h to 14 h",
-      solstice_6h: "21 Dec, 9 h to 15 h",
-      equinoxe_6h: "21 Mar, 9 h to 15 h",
-      equinoxe_8h: "21 Mar, 8 h to 16 h"
+      solstice_4h: "21 Dec, 10 am to 2 pm",
+      solstice_6h: "21 Dec, 9 am to 3 pm",
+      equinoxe_6h: "21 Mar, 9 am to 3 pm",
+      equinoxe_8h: "21 Mar, 8 am to 4 pm"
     },
     pays: { FR: "France", DE: "Germany", AT: "Austria", BE: "Belgium", ES: "Spain", IE: "Ireland", IT: "Italy", LU: "Luxembourg", NL: "Netherlands", PT: "Portugal", GB: "United Kingdom", CH: "Switzerland" },
     mois: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
@@ -249,7 +263,7 @@ export const TEXTES = {
     g5t: "What is the ground cover ratio (GCR)?",
     g5p: "The ratio of panel length along the slope to row pitch. It tells which share of the land actually carries modules: at 40%, 2.5 m² of plot are needed per m² of collector. It is the figure that turns a shading criterion into land area, hence cost.",
     g6t: "What the tool is, and what it is not",
-    g6p1: "The geometry — sun path, cast shadows, row spacing — is exact. The irradiation model is approximate: fitted to PVGIS irradiations, it gives the optimal tilt within 3° and relative losses within a few percent, enough to settle a slope or a spacing. It does not replace a yield calculation: to price kilowatt-hours, self-consumption and payback, a full sizing tool is needed — that is what <strong>SolarDim</strong> does, the app this one serves.",
+    g6p1: "The geometry — sun path, cast shadows, row spacing — is exact. The irradiation model is approximate: fitted to PVGIS irradiations, it gives the optimal tilt within 3° and relative losses within a few percent, enough to settle a slope or a spacing. It does not replace a yield calculation: to price kilowatt-hours, self-consumption and payback, a full sizing tool is needed — that is what <strong>SolarDim</strong> does, the app this one is a companion to.",
     g6p2: "Ninety reference points cover France and Western Europe — Germany, Austria, Belgium, Spain, Ireland, Italy, Luxembourg, Netherlands, Portugal, United Kingdom, Switzerland — or tune to latitude and sky type. All computation happens in the browser, with no network call: the tool works on the roof, in the cellar or out in the fields. It installs on the phone like an app, and stays free with no account."
   },
   de: {
@@ -260,7 +274,7 @@ export const TEXTES = {
     repere: "Nächster Referenzort",
     maPosition: "Mein Standort",
     meLocaliser: "Mich orten",
-    releveEncours: "Orte…",
+    releveEncours: "Ortung…",
     latitude: "Breitengrad",
     ciel: "Himmelstyp",
     calculs: "Berechnungen",
@@ -277,17 +291,17 @@ export const TEXTES = {
     inclinaisonTables: "3 · Tischneigung",
     aideCommun: "Ausrichtung und Neigung gelten für beide Register. Änderungen hier aktualisieren den Jahresverlust unter Neigung.",
     critere: "4 · Schattenfrei bis",
-    aideCritere: "Das ist die folgenreichste Wahl: von der Mittagssonne allein bis 9–15 Uhr kann sich der Abstand verdoppeln.",
+    aideCritere: "Das ist die folgenreichste Wahl: Der Wechsel vom Sonnenmittag allein zu 9–15 Uhr kann den Abstand verdoppeln.",
     localiserTitre: "Meine GPS-Position verwenden",
     verdictProche: "<b>{tilt} {azimut}</b>, das ist hier das Optimum.",
     verdictPerte: "Bei {tilt} {azimut} verlierst du <b>{perte}</b> gegenüber dem Optimum von <b>{optimal}</b>.",
     legendePlage: "Zwischen {a}° und {z}° bleibt der Verlust unter 5 %.",
-    calculeSur: "Berechnet über {periode}, {ciel}er Himmel.",
+    calculeSur: "Berechnet über {periode}, Himmel: {ciel}.",
     verdictRangees: "Lasse <b>{esp}</b> zwischen Oberkante einer Reihe und Unterkante der nächsten, also <b>{pas}</b> Reihenabstand.",
     hauteur: "Reihenhöhe",
     emprise: "Modulprojektion",
     couverture: "Bodenbedeckung",
-    soleil: "Auslegungssonne",
+    soleil: "Bemessungssonnenstand",
     sansOmbre: "Schattenfrei am 21. {mois}",
     jamais: "nie",
     heures: "{h} h",
@@ -311,7 +325,7 @@ export const TEXTES = {
     },
     loc: {
       navig: "Dieser Browser liefert keine Position.",
-      cours: "Orte…",
+      cours: "Ortung…",
       refus: "Position verweigert oder nicht verfügbar. Wähle eine Stadt oder versuche es erneut.",
       hors: "Position außerhalb des abgedeckten Breitengrads (35 bis 60° N). Wähle eine Stadt."
     },
@@ -336,9 +350,9 @@ export const TEXTES = {
     },
     pays: { FR: "Frankreich", DE: "Deutschland", AT: "Österreich", BE: "Belgien", ES: "Spanien", IE: "Irland", IT: "Italien", LU: "Luxemburg", NL: "Niederlande", PT: "Portugal", GB: "Vereinigtes Königreich", CH: "Schweiz" },
     mois: ["Jan.", "Feb.", "März", "Apr.", "Mai", "Juni", "Juli", "Aug.", "Sept.", "Okt.", "Nov.", "Dez."],
-    azimuts: ["genau Ost", "Ost-Süd-Ost", "Süd-Ost", "Süd-Süd-Ost", "genau Süd", "Süd-Süd-West", "Süd-West", "West-Süd-West", "genau West"],
-    reperes: ["Ost", "Süd-Ost", "Süd", "Süd-West", "West"],
-    longueurs: { "1.13": "quer", "1.96": "hoch", "2.26": "2 × quer", "2.28": "hoch lang" },
+    azimuts: ["genau Ost", "Ostsüdost", "Südost", "Südsüdost", "genau Süd", "Südsüdwest", "Südwest", "Westsüdwest", "genau West"],
+    reperes: ["Ost", "Südost", "Süd", "Südwest", "West"],
+    longueurs: { "1.13": "quer", "1.96": "hochkant", "2.26": "2 × quer", "2.28": "hochkant lang" },
     guideTitre: "Die Fragen, die diese Berechnung beantwortet",
     g1t: "Welche Neigung für Photovoltaikmodule?",
     g1p: "Auf einem bestehenden Dach ist die Neigung die des Dachs: Die Frage ist nicht, sie zu wählen, sondern was sie kostet. Im französischen Mutterland liegt die optimale Neigung einer genau nach Süden ausgerichteten Fläche zwischen 35 und 37°, von Perpignan bis Lille — sie hängt weit weniger vom Breitengrad ab, als man meint. Und das Band, das innerhalb von 5 % dieses Optimums bleibt, reicht von etwa 15 bis 57°: Fast jedes Dach liegt darin. Diese Breite zählt auf der Baustelle, mehr als das Optimum selbst. Eine waagrechte Fläche verliert in der Größenordnung von 19 %.",
@@ -347,7 +361,7 @@ export const TEXTES = {
     g3t: "Warum die Verschattung am 21. Dezember bemessen, und zu welcher Stunde?",
     g3p: "Das ist die folgenreichste Wahl der ganzen Auslegung, weit vor dem Breitengrad. Für ein 1,13-m-Modul im Gefälle, 30° geneigt, in genau nach Süden ausgerichtetem Feld bei Lyon: Schattenfreiheit allein zum Sonnenmittag der Sonnenwende verlangt 1,49 m freien Zwischenraum, also 2,47 m Reihenabstand; von 9 bis 15 Uhr desselben Tages verlangt sie 2,50 m, also 3,48 m Abstand. Die Bodenbedeckung sinkt von 46 auf 32 % — auf gegebener Fläche ein Drittel weniger installierte Leistung.",
     g4t: "Wie viel verliert ein Ost- oder Westdach?",
-    g4p: "Weniger als befürchtet auf der einen, mehr als erhofft auf der anderen Seite. Bei 30° Neigung verliert eine Süd-West- oder Süd-Ost-Fläche etwa 6 % gegenüber genau Süd; eine genau westliche oder östliche verliert etwa 21 %. Diese Abstände wachsen mit der Neigung: Ein steiles Westdach zahlt weit mehr für seine Ausrichtung als ein flaches.",
+    g4p: "Weniger als befürchtet auf der einen, mehr als erhofft auf der anderen Seite. Bei 30° Neigung verliert eine Südwest- oder Südostfläche etwa 6 % gegenüber genau Süd; eine genau westliche oder östliche verliert etwa 21 %. Diese Unterschiede wachsen mit der Neigung: Ein steiles Westdach zahlt weit mehr für seine Ausrichtung als ein flaches.",
     g5t: "Was ist die Bodenbedeckung (GCR)?",
     g5p: "Das Verhältnis von Modullänge im Gefälle zum Reihenabstand. Es sagt, welcher Teil der Fläche tatsächlich Module trägt: Bei 40 % braucht es 2,5 m² Parzelle je m² Kollektor. Das ist die Zahl, die ein Verschattungskriterium in Grundstücksfläche übersetzt, also in Kosten.",
     g6t: "Was das Werkzeug ist, und was nicht",
@@ -367,7 +381,7 @@ export const TEXTES = {
     ciel: "Tipo di cielo",
     calculs: "Calcoli",
     ongletInclinaison: "Inclinazione",
-    ongletRangees: "File",
+    ongletRangees: "Filari",
     saisonAria: "Periodo considerato",
     orientationToit: "1 · Orientamento del tetto",
     inclinaisonPlan: "2 · Inclinazione del piano",
@@ -379,7 +393,7 @@ export const TEXTES = {
     inclinaisonTables: "3 · Inclinazione delle strutture",
     aideCommun: "Orientamento e inclinazione sono comuni alle due schede. Modificarli qui aggiorna la perdita annua in Inclinazione.",
     critere: "4 · Senza ombra fino a",
-    aideCritere: "È la scelta più pesante del calcolo: dal solo mezzogiorno alle 9–15 l'interdistanza può raddoppiare.",
+    aideCritere: "È la scelta più pesante del calcolo: passare dal solo mezzogiorno alla fascia 9–15 può raddoppiare l'interdistanza.",
     localiserTitre: "Usa la mia posizione GPS",
     verdictProche: "<b>{tilt} {azimut}</b>, è l'ottimo qui.",
     verdictPerte: "A {tilt} {azimut} perdi <b>{perte}</b> rispetto all'ottimo di <b>{optimal}</b>.",
@@ -420,7 +434,7 @@ export const TEXTES = {
     climats: {
       mediterraneen: { label: "Molto soleggiato", hint: "Marsiglia, Perpignano, Siviglia, Roma" },
       sudouest: { label: "Soleggiato", hint: "Tolosa, Lione, Milano, Ginevra" },
-      atlantique: { label: "Temperato limpido", hint: "Nantes, La Rochelle, Monaco, Vienna" },
+      atlantique: { label: "Temperato limpido", hint: "Nantes, La Rochelle, Monaco di Baviera, Vienna" },
       continental: { label: "Temperato", hint: "Strasburgo, Digione, Bruxelles, Londra" },
       oceanique: { label: "Spesso coperto", hint: "Lilla, Rouen, Amburgo, Glasgow" }
     },
@@ -447,11 +461,11 @@ export const TEXTES = {
     g2t: "Quale distanza tra due file di pannelli solari?",
     g2p: "Su una struttura inclinata di β la cui lunghezza lungo la pendenza vale L, il bordo alto sovrasta il bordo basso di <em>h = L·sin β</em>. Perché l'ombra portata non raggiunga la fila successiva quando il sole è all'altezza α e a uno scarto d'azimut Δ dall'asse del campo, serve uno spazio libero di <em>d = h·cos Δ / tan α</em>. Il passo tra le file — che è anche l'ingombro a terra di una fila — vi aggiunge la proiezione del pannello: <em>D = L·cos β + d</em>.",
     g3t: "Perché calcolare l'ombreggiamento al 21 dicembre, e a che ora?",
-    g3p: "È la scelta più pesante di tutto il dimensionamento, molto prima della latitudine. Per un modulo da 1,13 m lungo la pendenza, inclinato di 30°, in campo a pieno sud verso Lione: essere senza ombra al solo mezzogiorno solare del solstizio richiede 1,49 m di spazio libero, ossia un passo di 2,47 m; esserlo dalle 9 alle 15 dello stesso giorno ne richiede 2,50 m, ossia un passo di 3,48 m. La copertura del suolo scende dal 46 al 32 % — su una data parcella, un terzo di potenza installata in meno.",
+    g3p: "È la scelta più pesante di tutto il dimensionamento, molto prima della latitudine. Per un modulo da 1,13 m lungo la pendenza, inclinato di 30°, in campo a pieno sud nei pressi di Lione: essere senza ombra al solo mezzogiorno solare del solstizio richiede 1,49 m di spazio libero, ossia un passo di 2,47 m; esserlo dalle 9 alle 15 dello stesso giorno ne richiede 2,50 m, ossia un passo di 3,48 m. La copertura del suolo scende dal 46 al 32 % — su una data parcella, un terzo di potenza installata in meno.",
     g4t: "Quanto perde un tetto esposto a est o a ovest?",
     g4p: "Meno di quanto si tema da un lato, più di quanto si speri dall'altro. A 30° di pendenza, un piano a sud-ovest o sud-est perde circa il 6 % rispetto al pieno sud; un piano a pieno ovest o pieno est ne perde circa il 21 %. Questi scarti crescono con la pendenza: un tetto ripido esposto a ovest paga il suo orientamento molto più caro di un tetto piano.",
     g5t: "Cos'è il tasso di copertura del suolo (GCR)?",
-    g5p: "Il rapporto tra la lunghezza del pannello lungo la pendenza e il passo tra le file. Dice quale parte del terreno porta davvero moduli: al 40 %, servono 2,5 m² di parcella per m² di captatore. È la cifra che traduce un criterio d'ombreggiamento in superficie di terreno, quindi in costo.",
+    g5p: "Il rapporto tra la lunghezza del pannello lungo la pendenza e il passo tra le file. Dice quale parte del terreno porta davvero moduli: al 40 %, servono 2,5 m² di parcella per m² di modulo. È la cifra che traduce un criterio d'ombreggiamento in superficie di terreno, quindi in costo.",
     g6t: "Cos'è questo strumento, e cosa non è",
     g6p1: "La geometria — corsa del sole, ombre portate, distanza tra le file — è esatta. Il modello d'irraggiamento, invece, è approssimato: tarato sulle irradiazioni PVGIS, dà l'inclinazione ottimale entro 3° e le perdite relative entro pochi per cento, quanto basta per decidere una pendenza o un'interdistanza. Non sostituisce un calcolo di produzione: per stimare chilowattora, autoconsumo e redditività serve uno strumento di dimensionamento completo — è ciò che fa <strong>SolarDim</strong>, l'applicazione di cui questa è il satellite.",
     g6p2: "Novanta punti di riferimento coprono la Francia e l'Europa occidentale — Germania, Austria, Belgio, Spagna, Irlanda, Italia, Lussemburgo, Paesi Bassi, Portogallo, Regno Unito, Svizzera — oppure si regolano latitudine e tipo di cielo. Tutto il calcolo avviene nel browser, senza alcuna chiamata di rete: lo strumento si usa sul tetto, in cantina o in aperta campagna. Si installa sul telefono come un'applicazione, e resta gratuito e senza account."
@@ -481,7 +495,7 @@ export const TEXTES = {
     inclinaisonTables: "3 · Inclinación de las mesas",
     aideCommun: "Orientación e inclinación son comunes a ambas pestañas. Cambiarlas aquí actualiza la pérdida anual en Inclinación.",
     critere: "4 · Sin sombra hasta",
-    aideCritere: "Es la elección con más peso: del solo mediodía a las 9–15 h la separación puede duplicarse.",
+    aideCritere: "Es la elección con más peso: pasar de solo el mediodía a la franja de 9 a 15 h puede duplicar la separación.",
     localiserTitre: "Usar mi posición GPS",
     verdictProche: "<b>{tilt} {azimut}</b>, es el óptimo aquí.",
     verdictPerte: "A {tilt} {azimut} pierdes <b>{perte}</b> frente al óptimo de <b>{optimal}</b>.",
@@ -535,8 +549,8 @@ export const TEXTES = {
       solstice_midi: "21 dic., mediodía solar",
       solstice_4h: "21 dic., 10–14 h",
       solstice_6h: "21 dic., 9–15 h",
-      equinoxe_6h: "21 mar., 9–15 h",
-      equinoxe_8h: "21 mar., 8–16 h"
+      equinoxe_6h: "21 mar., 9h–15h",
+      equinoxe_8h: "21 mar., 8h–16h"
     },
     pays: { FR: "Francia", DE: "Alemania", AT: "Austria", BE: "Bélgica", ES: "España", IE: "Irlanda", IT: "Italia", LU: "Luxemburgo", NL: "Países Bajos", PT: "Portugal", GB: "Reino Unido", CH: "Suiza" },
     mois: ["ene.", "feb.", "mar.", "abr.", "may.", "jun.", "jul.", "ago.", "sep.", "oct.", "nov.", "dic."],
@@ -549,7 +563,7 @@ export const TEXTES = {
     g2t: "¿Qué distancia entre dos filas de paneles solares?",
     g2p: "En una mesa inclinada β cuya longitud en el sentido de la pendiente vale L, el borde alto domina al borde bajo en <em>h = L·sin β</em>. Para que la sombra arrojada no alcance la fila siguiente cuando el sol está a altura α y a un desvío de acimut Δ del eje del campo, hay que dejar un espacio libre de <em>d = h·cos Δ / tan α</em>. El paso entre filas — que también es la ocupación de suelo de una fila — le suma la proyección del panel: <em>D = L·cos β + d</em>.",
     g3t: "¿Por qué calcular la sombra el 21 de diciembre, y a qué hora?",
-    g3p: "Es la elección con más peso de todo el dimensionado, muy por delante de la latitud. Para un módulo de 1,13 m en la pendiente, inclinado 30°, en campo a pleno sur hacia Lyon: estar sin sombra solo al mediodía solar del solsticio exige 1,49 m de espacio libre, o sea un paso de 2,47 m; estarlo de 9 a 15 h ese mismo día exige 2,50 m, o sea un paso de 3,48 m. La cobertura del suelo cae del 46 al 32 % — en una parcela dada, un tercio menos de potencia instalada.",
+    g3p: "Es la elección con más peso de todo el dimensionado, muy por delante de la latitud. Para un módulo de 1,13 m en la pendiente, inclinado 30°, en campo a pleno sur cerca de Lyon: estar sin sombra solo al mediodía solar del solsticio exige 1,49 m de espacio libre, o sea un paso de 2,47 m; estarlo de 9 a 15 h ese mismo día exige 2,50 m, o sea un paso de 3,48 m. La cobertura del suelo cae del 46 al 32 % — en una parcela dada, un tercio menos de potencia instalada.",
     g4t: "¿Cuánto pierde un tejado orientado al este o al oeste?",
     g4p: "Menos de lo temido por un lado, más de lo esperado por el otro. A 30° de pendiente, un plano al suroeste o al sureste pierde alrededor del 6 % frente al pleno sur; un plano a pleno oeste o pleno este pierde alrededor del 21 %. Estas diferencias crecen con la pendiente: un tejado empinado orientado al oeste paga su orientación mucho más cara que uno plano.",
     g5t: "¿Qué es la tasa de cobertura del suelo (GCR)?",
@@ -583,7 +597,7 @@ export const TEXTES = {
     inclinaisonTables: "3 · Inclinação das mesas",
     aideCommun: "Orientação e inclinação são comuns aos dois separadores. Alterá-las aqui atualiza a perda anual em Inclinação.",
     critere: "4 · Sem sombra até",
-    aideCritere: "É a escolha com mais peso: do meio-dia sozinho às 9–15 h o afastamento pode duplicar.",
+    aideCritere: "É a escolha com mais peso: passar só do meio-dia para a faixa das 9h às 15h pode duplicar o afastamento.",
     localiserTitre: "Usar a minha posição GPS",
     verdictProche: "<b>{tilt} {azimut}</b>, é o ideal aqui.",
     verdictPerte: "A {tilt} {azimut} perdes <b>{perte}</b> face ao ideal de <b>{optimal}</b>.",
@@ -635,25 +649,25 @@ export const TEXTES = {
     },
     criteres: {
       solstice_midi: "21 dez., meio-dia solar",
-      solstice_4h: "21 dez., 10–14 h",
-      solstice_6h: "21 dez., 9–15 h",
-      equinoxe_6h: "21 mar., 9–15 h",
-      equinoxe_8h: "21 mar., 8–16 h"
+      solstice_4h: "21 dez., 10h–14h",
+      solstice_6h: "21 dez., 9h–15h",
+      equinoxe_6h: "21 mar., 9h–15h",
+      equinoxe_8h: "21 mar., 8h–16h"
     },
     pays: { FR: "França", DE: "Alemanha", AT: "Áustria", BE: "Bélgica", ES: "Espanha", IE: "Irlanda", IT: "Itália", LU: "Luxemburgo", NL: "Países Baixos", PT: "Portugal", GB: "Reino Unido", CH: "Suíça" },
     mois: ["jan.", "fev.", "mar.", "abr.", "mai.", "jun.", "jul.", "ago.", "set.", "out.", "nov.", "dez."],
-    azimuts: ["pleno leste", "leste-sudeste", "sudeste", "sul-sudeste", "pleno sul", "sul-sudoeste", "sudoeste", "oeste-sudoeste", "pleno oeste"],
-    reperes: ["Leste", "Sudeste", "Sul", "Sudoeste", "Oeste"],
+    azimuts: ["este", "este-sudeste", "sudeste", "sul-sudeste", "sul", "sul-sudoeste", "sudoeste", "oeste-sudoeste", "oeste"],
+    reperes: ["Este", "Sudeste", "Sul", "Sudoeste", "Oeste"],
     longueurs: { "1.13": "horizontal", "1.96": "vertical", "2.26": "2 na horizontal", "2.28": "vertical comprido" },
     guideTitre: "As perguntas a que este cálculo responde",
     g1t: "Que inclinação dar aos painéis fotovoltaicos?",
-    g1p: "Num telhado existente, a pendente é a do telhado: a questão não é escolhê-la mas saber quanto custa. Na França metropolitana, a inclinação ideal de um plano orientado a pleno sul fica entre 35 e 37°, de Perpinhão a Lille — depende muito menos da latitude do que se pensa. E a faixa que fica a menos de 5 % desse ideal estende-se de cerca de 15 a 57°: quase todos os telhados lá estão. É essa largura que serve na obra, mais do que o ideal em si. Um plano horizontal, esse, perde da ordem de 19 %.",
+    g1p: "Num telhado existente, a pendente é a do telhado: a questão não é escolhê-la mas saber quanto custa. Na França metropolitana, a inclinação ideal de um plano orientado a sul fica entre 35 e 37°, de Perpinhão a Lille — depende muito menos da latitude do que se pensa. E a faixa que fica a menos de 5 % desse ideal estende-se de cerca de 15 a 57°: quase todos os telhados lá estão. É essa largura que serve na obra, mais do que o ideal em si. Um plano horizontal, esse, perde da ordem de 19 %.",
     g2t: "Que distância entre duas fileiras de painéis solares?",
     g2p: "Numa mesa inclinada de β cujo comprimento no sentido da pendente vale L, o bordo alto domina o bordo baixo em <em>h = L·sin β</em>. Para que a sombra projetada não alcance a fileira seguinte quando o sol está à altura α e a um desvio de azimute Δ do eixo do campo, é preciso deixar um espaço livre de <em>d = h·cos Δ / tan α</em>. O passo entre fileiras — que também é a ocupação de solo de uma fileira — soma-lhe a projeção do painel: <em>D = L·cos β + d</em>.",
     g3t: "Por que calcular o sombreamento a 21 de dezembro, e a que horas?",
-    g3p: "É a escolha com mais peso de todo o dimensionamento, muito à frente da latitude. Para um módulo de 1,13 m na pendente, inclinado 30°, em campo a pleno sul rumo a Lyon: estar sem sombra só ao meio-dia solar do solstício exige 1,49 m de espaço livre, ou seja um passo de 2,47 m; estar das 9 às 15 h nesse mesmo dia exige 2,50 m, ou seja um passo de 3,48 m. A cobertura do solo cai de 46 para 32 % — numa dada parcela, um terço de potência instalada a menos.",
-    g4t: "Quanto perde um telhado orientado a leste ou a oeste?",
-    g4p: "Menos do que se teme de um lado, mais do que se espera do outro. A 30° de pendente, um plano a sudoeste ou a sudeste perde cerca de 6 % face ao pleno sul; um plano a pleno oeste ou pleno leste perde cerca de 21 %. Estas diferenças crescem com a pendente: um telhado íngreme orientado a oeste paga a sua orientação muito mais caro do que um plano.",
+    g3p: "É a escolha com mais peso de todo o dimensionamento, muito à frente da latitude. Para um módulo de 1,13 m na pendente, inclinado 30°, em campo orientado a sul perto de Lyon: estar sem sombra só ao meio-dia solar do solstício exige 1,49 m de espaço livre, ou seja um passo de 2,47 m; estar das 9h às 15h nesse mesmo dia exige 2,50 m, ou seja um passo de 3,48 m. A cobertura do solo cai de 46 para 32 % — numa dada parcela, um terço de potência instalada a menos.",
+    g4t: "Quanto perde um telhado orientado a este ou a oeste?",
+    g4p: "Menos do que se teme de um lado, mais do que se espera do outro. A 30° de pendente, um plano a sudoeste ou a sudeste perde cerca de 6 % face a um plano a sul; um plano a oeste ou a este perde cerca de 21 %. Estas diferenças crescem com a pendente: um telhado íngreme orientado a oeste paga a sua orientação muito mais caro do que um plano.",
     g5t: "O que é a taxa de cobertura do solo (GCR)?",
     g5p: "O quociente entre o comprimento do painel na pendente e o passo entre fileiras. Diz que parte do terreno leva de facto módulos: a 40 %, são precisos 2,5 m² de parcela por m² de captador. É o número que traduz um critério de sombra em superfície de terreno, logo em custo.",
     g6t: "O que a ferramenta é, e o que não é",

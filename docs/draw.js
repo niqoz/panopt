@@ -13,10 +13,6 @@ import { nombre, gabarit, TEXTES } from "./i18n.js";
 export const m = (v, langue = "fr") => `${nombre(v, 2, langue)} m`;
 export const deg = (v) => `${Math.round(v)}°`;
 export const pct = (v, langue = "fr") => `${nombre(v, 1, langue)} %`;
-export const hm = (h) => {
-  const t = Math.round(h * 60), mn = t % 60;
-  return `${Math.floor(t / 60)} h${mn ? ` ${String(mn).padStart(2, "0")}` : ""}`;
-};
 
 /** Définitions communes : hachures du terrain et de l'ombre, pointes de cote. */
 function defs() {

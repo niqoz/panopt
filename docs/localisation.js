@@ -17,34 +17,36 @@ export function positionDifferente(site, coords) {
   return km > Math.max(10, precision);
 }
 
+/** `appliquer(coords)` renvoie le message à afficher sous forme de
+    fonction : il est refait à chaque affichage et suit donc la langue. */
 export function creerLocalisation({ navigateur, lireSite, appliquer, afficher, lireLangue = () => "fr" }) {
   let position = null;
   let enCours = false;
-  let message = "";
+  let message = () => "";
   const disponible = Boolean(navigateur.geolocation);
   const textes = () => TEXTES[lireLangue()].loc;
 
   function actualiser() {
     afficher({
       visible: disponible && (enCours || !position || positionDifferente(lireSite(), position)),
-      enCours, disponible, message
+      enCours, disponible, message: message()
     });
   }
 
   function relever(appliquerPosition = true) {
     if (enCours) return;
     if (!disponible) {
-      message = textes().navig;
+      message = () => textes().navig;
       actualiser();
       return;
     }
     enCours = true;
-    message = appliquerPosition ? textes().cours : "";
+    message = () => (appliquerPosition ? textes().cours : "");
     actualiser();
     const echouer = () => {
       enCours = false;
       position = null;
-      message = appliquerPosition ? textes().refus : "";
+      message = () => (appliquerPosition ? textes().refus : "");
       actualiser();
     };
     try {
@@ -53,7 +55,7 @@ export function creerLocalisation({ navigateur, lireSite, appliquer, afficher, l
         if (![coords.latitude, coords.longitude].every(Number.isFinite)
           || coords.latitude < 35 || coords.latitude > 60 || Math.abs(coords.longitude) > 180) {
           position = null;
-          message = appliquerPosition ? textes().hors : "";
+          message = () => (appliquerPosition ? textes().hors : "");
         } else {
           position = coords;
           if (appliquerPosition) message = appliquer(coords);
@@ -75,7 +77,7 @@ export function creerLocalisation({ navigateur, lireSite, appliquer, afficher, l
   }
 
   function effacerMessage() {
-    message = "";
+    message = () => "";
     actualiser();
   }
 

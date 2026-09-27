@@ -139,8 +139,8 @@ par le `referrer` du lien vers la fiche — lien qui attend la publication.
 ## Bannière SolarDim
 
 Le pied de page porte la bannière publicitaire de l'application, reprise de
-`~/Projets/SolairDimDroid/publicite/traductions/` (six langues à la source,
-seule la française est livrée) et convertie en WebP — le PNG d'origine pèse
+`~/Projets/SolairDimDroid/publicite/traductions/` (six langues, toutes
+livrées, seule la française préchargée) et convertie en WebP — le PNG d'origine pèse
 1,2 Mo, ce qui n'a rien à faire dans un cache hors ligne. Elle est carrée :
 `.promo` plafonne sa largeur, sans quoi elle mange l'écran. Pas de lien tant
 que la fiche Play Store n'est pas publiée ; l'URL de campagne attend dans le
@@ -208,6 +208,31 @@ google-chrome --headless=new --disable-gpu --hide-scrollbars \
 
 Les ancres `#inclinaison` et `#rangees` ouvrent directement un onglet, ce
 qui permet de capturer chaque vue sans clic.
+
+## Langues
+
+Six langues (fr, en, de, it, es, pt) dans le seul `docs/i18n.js`. La langue
+suit l'appareil, un sélecteur de l'entête la fixe (`panopt.langue`), le
+français sert de repli. Le français reste **en dur dans `index.html`** : c'est
+ce que lisent les moteurs de recherche, le JavaScript le remplace au
+démarrage via les attributs `data-i18n*`.
+
+- **Les libellés n'existent qu'une fois**, dans `i18n.js`. Le moteur ne porte
+  que des clés : `CLIMATES`, `SEASONS`, `CRITERIA` et `COUNTRIES` n'ont plus
+  de `label`. Y remettre du texte recréerait deux sources qui divergent.
+- **Aucun texte affiché ne se garde tout fait.** Un message conservé en
+  chaîne reste dans l'ancienne langue après un changement : les messages de
+  `localisation.js` et d'`installer.js` sont des fonctions rejouées à
+  l'affichage, et un relevé GPS enregistre `ville` + `pres` et non « Près de
+  Lyon ». Les réglages antérieurs, qui portaient ce libellé français, sont
+  convertis au chargement dans `app.js`.
+- Un test impose aux six dictionnaires la même forme, et à chaque chaîne les
+  mêmes `{variables}` qu'en français : une variable perdue disparaîtrait du
+  texte sans bruit.
+- L'heure passe par `heure()` : « 9 h » en français n'est pas lisible en
+  anglais (« 9 am ») ni en allemand (« 9 Uhr »).
+- Les six bannières sont livrées, mais seule la française est préchargée ;
+  les autres entrent dans le cache à leur premier affichage.
 
 ## Ce qui a été retiré
 

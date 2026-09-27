@@ -27,7 +27,7 @@ function scenario({ permission = "granted", coords = gpsParis, erreur, disponibl
     appliquer: (c) => {
       applications++;
       site = { lat: Math.round(c.latitude * 10) / 10, lon: c.longitude };
-      return "Position relevée.";
+      return () => "Position relevée.";
     },
     afficher: (v) => { vue = v; }
   });

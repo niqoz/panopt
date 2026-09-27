@@ -8,7 +8,7 @@ import { CLIMATES } from "../docs/solar.js";
    climatique avec, puisqu'elle est celle du repère le plus proche. */
 
 test("chaque repère tient dans l'Europe couverte et pointe une zone existante", () => {
-  const pays = new Set(COUNTRIES.map(([c]) => c));
+  const pays = new Set(COUNTRIES);
   for (const [nom, lat, lon, zone, p] of CITIES) {
     assert.ok(zone in CLIMATES, `${nom} : zone inconnue « ${zone} »`);
     assert.ok(pays.has(p), `${nom} : pays « ${p} » absent du menu`);
@@ -31,8 +31,8 @@ test("aucun repère n'est homonyme d'un autre", () => {
 });
 
 test("chaque pays du menu a au moins un repère", () => {
-  for (const [code, nom] of COUNTRIES) {
-    assert.ok(CITIES.some((c) => c[4] === code), `${nom} : aucun repère`);
+  for (const code of COUNTRIES) {
+    assert.ok(CITIES.some((c) => c[4] === code), `${code} : aucun repère`);
   }
 });
 

@@ -17,13 +17,13 @@
 import { sunPosition, dayOfYear, toRad, sunriseHour } from "./solar.js";
 
 /** Critères d'ombrage courants. `span` = demi-plage en heures autour du midi
-    solaire ; 0 = midi seul. */
+    solaire ; 0 = midi seul. Les libellés vivent dans i18n.js. */
 export const CRITERIA = {
-  solstice_midi: { label: "21 déc., midi solaire", month: 12, day: 21, span: 0 },
-  solstice_4h: { label: "21 déc., 10 h à 14 h", month: 12, day: 21, span: 2 },
-  solstice_6h: { label: "21 déc., 9 h à 15 h", month: 12, day: 21, span: 3 },
-  equinoxe_6h: { label: "21 mars, 9 h à 15 h", month: 3, day: 21, span: 3 },
-  equinoxe_8h: { label: "21 mars, 8 h à 16 h", month: 3, day: 21, span: 4 }
+  solstice_midi: { month: 12, day: 21, span: 0 },
+  solstice_4h: { month: 12, day: 21, span: 2 },
+  solstice_6h: { month: 12, day: 21, span: 3 },
+  equinoxe_6h: { month: 3, day: 21, span: 3 },
+  equinoxe_8h: { month: 3, day: 21, span: 4 }
 };
 
 /** Hauteur du bord haut du panneau au-dessus de son bord bas. */

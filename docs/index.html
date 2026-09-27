@@ -20,7 +20,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
-<link rel="stylesheet" href="style.css?v=15">
+<link rel="stylesheet" href="style.css?v=16">
 </head>
 <body>
 
@@ -34,15 +34,17 @@
       <span id="site-libelle">Lyon</span>
       <span id="site-detail">Ensoleillé</span>
     </button>
-    <button type="button" id="ma-loc" class="ma-loc" title="Utiliser ma position GPS" data-i18n="meLocaliser" data-i18n-title="localiserTitre" hidden>Me localiser</button>
-    <select id="langue" class="langue" aria-label="Langue" data-i18n-aria="langue">
-      <option value="fr">Français</option>
-      <option value="en">English</option>
-      <option value="de">Deutsch</option>
-      <option value="it">Italiano</option>
-      <option value="es">Español</option>
-      <option value="pt">Português</option>
-    </select>
+    <div class="site-outils">
+      <button type="button" id="ma-loc" class="ma-loc" title="Utiliser ma position GPS" data-i18n="meLocaliser" data-i18n-title="localiserTitre" hidden>Me localiser</button>
+      <select id="langue" class="langue" aria-label="Langue" data-i18n-aria="langue">
+        <option value="fr" lang="fr" title="Français">FR</option>
+        <option value="en" lang="en" title="English">EN</option>
+        <option value="de" lang="de" title="Deutsch">DE</option>
+        <option value="it" lang="it" title="Italiano">IT</option>
+        <option value="es" lang="es" title="Español">ES</option>
+        <option value="pt" lang="pt" title="Português">PT</option>
+      </select>
+    </div>
   </div>
   <p id="ma-loc-etat" class="ma-loc-etat" role="status"></p>
 </header>
@@ -200,7 +202,7 @@
     irradiations PVGIS, il donne l'inclinaison optimale à 3° près et les pertes
     relatives à quelques pour cent, ce qui suffit à trancher une pente ou un
     écartement. Il ne remplace pas un calcul de production : pour chiffrer des
-    kilowattheures, un autoconsommation et une rentabilité, il faut un outil de
+    kilowattheures, une autoconsommation et une rentabilité, il faut un outil de
     dimensionnement complet — c'est ce que fait <strong>SolarDim</strong>,
     l'application dont celle-ci est le satellite.</p>
     <p data-i18n="g6p2">Quatre-vingt-dix repères couvrent la France et l'Europe de l'Ouest —

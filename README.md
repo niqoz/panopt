@@ -120,9 +120,11 @@ publication.
 
 Le pied de page porte une bannière de l'application, prise telle quelle dans
 `SolairDimDroid/publicite/traductions/` et convertie en WebP : 1,2 Mo de PNG
-deviennent 100 ko, ce qui la rend supportable dans le cache hors ligne. Six
-langues existent à la source ; seule la française est livrée, et la bannière
-se masque dans les autres langues. L'image n'est pas cliquable pour l'instant — le lien de campagne
+deviennent 100 ko, ce qui la rend supportable dans le cache hors ligne. Les
+six langues sont livrées (`solardim-banniere-<langue>.webp`, WebP qualité 80,
+environ 90 ko chacune) ; seule la française est préchargée, les autres
+entrent dans le cache à leur premier affichage en ligne, et le bloc se masque
+si le fichier manque. L'image n'est pas cliquable pour l'instant — le lien de campagne
 ci-dessus l'enveloppera le jour de la publication.
 
 ## Développement
@@ -174,7 +176,9 @@ fictifs. Elle isole les réglages et désactive le service worker dans l'iframe.
 La langue suit l'appareil (`navigator.languages`), avec un sélecteur dans
 l'entête mémorisé à part (`panopt.langue`) et le français comme repli. Le
 français reste en dur dans `index.html` pour les moteurs de recherche ; le
-JavaScript y substitue la langue choisie au démarrage, guide compris.
+JavaScript y substitue la langue choisie au démarrage, guide compris. Les
+libellés vivent seulement dans `i18n.js` : le moteur (`solar.js`, `layout.js`,
+`sites.js`) ne porte que des clés.
 
 `outils-icones.py` régénère les deux icônes ; il n'est pas nécessaire au
 fonctionnement.

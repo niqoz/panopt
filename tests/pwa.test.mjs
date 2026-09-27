@@ -33,10 +33,15 @@ function fichiers(dir = DOCS, prefixe = "") {
 const HORS_CACHE = new Set(["sw.js", "vendor/fonts/Fraunces-OFL.txt", "vendor/fonts/DMSans-OFL.txt",
   "robots.txt", "sitemap.xml", "partage.png"]);
 
+/* Les bannières traduites ne sont chargées que dans leur langue : les
+   précharger toutes ferait porter 440 ko au forfait pour en afficher une.
+   Le service worker garde celle qui s'affiche, au premier passage en ligne. */
+const A_LA_DEMANDE = new Set(["en", "de", "it", "es", "pt"].map((l) => `solardim-banniere-${l}.webp`));
+
 test("tout fichier livre est mis en cache pour le hors ligne", () => {
   const liste = new Set(assets());
   for (const f of fichiers()) {
-    if (HORS_CACHE.has(f)) continue;
+    if (HORS_CACHE.has(f) || A_LA_DEMANDE.has(f)) continue;
     assert.ok(liste.has(f), `${f} absent de la liste ASSETS de sw.js`);
   }
 });
@@ -81,4 +86,14 @@ test("le bandeau conserve le climat sans afficher de coordonnées", () => {
   const detail = lire("index.html").match(/id="site-detail">([^<]*)</)[1];
   assert.equal(detail, "Ensoleillé");
   assert.match(lire("app.js"), /\$\("site-detail"\)\.textContent = T\(\)\.climats\[etat\.climat\]\.label;/);
+});
+
+test("une bannière traduite existe pour chaque langue, hors du précache", () => {
+  const surDisque = new Set(fichiers());
+  const liste = new Set(assets());
+  for (const f of A_LA_DEMANDE) {
+    assert.ok(surDisque.has(f), `${f} absente de docs/`);
+    assert.ok(!liste.has(f), `${f} ne doit pas être préchargée`);
+  }
+  assert.match(lire("app.js"), /`solardim-banniere-\$\{langue\}\.webp`/);
 });
